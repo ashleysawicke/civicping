@@ -9,7 +9,7 @@ A phone-friendly civic information app for Ann Arbor residents who don't regular
 ## Status
 
 - **Milestone 1 — Source check: complete** (2026-10-14). Ann Arbor's Legistar API is publicly accessible with no token. See [`docs/milestone-1-source-check.md`](docs/milestone-1-source-check.md) for the endpoint verification, field map, and data quirks.
-- **Milestone 2 — Working loop:** not started.
+- **Milestone 2 — Working loop: complete** (2026-10-14). Mobile feed, item detail, preferences, action handoffs, and outcome states — all verified against live Legistar data with `npm run build` + local smoke test.
 
 ## Docs
 
