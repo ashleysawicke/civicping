@@ -20,6 +20,18 @@ A phone-friendly civic information app for Ann Arbor residents who don't regular
 
 One TypeScript web codebase, mobile-first UI, server-side Legistar adapter, small persistent cache. User topic/ward preferences stay in on-device storage for the prototype.
 
+## Development
+
+```bash
+npm install
+npm run dev      # http://localhost:3000
+npm run build    # production build
+```
+
+No API keys needed — the Legistar API is public. The server caches upstream
+responses in `.cache/legistar/` (gitignored): 15-minute TTL for upcoming
+meetings, 24-hour TTL for past meetings.
+
 ## Data source
 
 [Ann Arbor Legistar](https://a2gov.legistar.com/Calendar.aspx) via the public [Legistar Web API](https://webapi.legistar.com/Help) (`https://webapi.legistar.com/v1/a2gov/`).
