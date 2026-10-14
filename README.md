@@ -9,7 +9,7 @@ A phone-friendly civic information app for Ann Arbor residents who don't regular
 ## Status
 
 - **Milestone 1 — Source check: complete** (2026-10-14). Ann Arbor's Legistar API is publicly accessible with no token. See [`docs/milestone-1-source-check.md`](docs/milestone-1-source-check.md) for the endpoint verification, field map, and data quirks.
-- **Milestone 2 — Working loop: complete** (2026-10-14). Mobile feed, item detail, preferences, action handoffs, and outcome states — all verified against live Legistar data with `npm run build` + local smoke test.
+- **Milestone 3 — Quality pass: complete** (2026-10-14). 21 vitest tests for normalization + ranking (`npm test`); phone-viewport walkthrough with real screenshots (no horizontal overflow, demo banner prominent, source links all official domains); tightened procedural filter after spotting filler in screenshots (120 → 46 substantive items on the Oct 5 meeting); README documents testing.
 
 ## Docs
 
@@ -26,11 +26,23 @@ One TypeScript web codebase, mobile-first UI, server-side Legistar adapter, smal
 npm install
 npm run dev      # http://localhost:3000
 npm run build    # production build
+npm test         # vitest unit tests (normalization + ranking)
 ```
 
 No API keys needed — the Legistar API is public. The server caches upstream
 responses in `.cache/legistar/` (gitignored): 15-minute TTL for upcoming
 meetings, 24-hour TTL for past meetings.
+
+## Testing
+
+`npm test` runs the vitest suite in `lib/`:
+
+- `lib/legistar.test.ts` — normalization: date slicing, passed/consent flag
+  mapping, procedural-item detection, topic detection, whitespace cleanup,
+  attachment filtering, official source links.
+- `lib/ranking.test.ts` — feed ranking: topic/ward scoring, consent penalty,
+  procedural exclusion, score ordering with sequence tiebreaks, empty-prefs
+  behavior, input immutability.
 
 ## Data source
 

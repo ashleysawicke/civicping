@@ -100,6 +100,18 @@ inappropriate for civic information.
    upstream multiplies latency. If this shows up in profiling, batch the
    matter+history fetch server-side inside the item route.
 
+## Known dev-mode artifact (not a production issue)
+
+In `next dev`, Next.js shows a "1 Issue" overlay on the meeting/item routes:
+`Route "/meetings/[meetingId]": Next.js encountered the unstable value
+Date.now() while prerendering.` This comes from the request-time cache
+bookkeeping in `fetchJson` (`Date.now()` for TTLs) and the "today" date used
+to pick the cache tier — both run inside `<Suspense>` boundaries, so in
+production they execute per request while streaming (verified via `next start`
+smoke test: `lastCheckedAt` is fresh). The production build completes cleanly.
+Safe to ignore in dev; do not "fix" by hoisting timestamps to module scope,
+which would make them stale.
+
 ## Known limitations (prototype)
 
 - eComment availability isn't in the API; the app links to the official
