@@ -175,6 +175,7 @@ const PROCEDURAL_PATTERNS = [
   "roll call",
   "approval of agenda",
   "public commentary",
+  "public comment - continued",
   "communications from",
   "introductions",
   "consent agenda",
@@ -182,10 +183,14 @@ const PROCEDURAL_PATTERNS = [
   "adjournment",
 ];
 
-function isProcedural(title: string, matterId: number | null, actionName: string | null): boolean {
+function isProcedural(title: string, matterId: number | null): boolean {
+  // The matter record carries the substantive content (official title, type,
+  // status, attachments). Items without one are agenda scaffolding: section
+  // headers ("Ordinances - Second Reading"), broadcast boilerplate, public-
+  // comment speaker sign-up slots, adjournment, and consent-umbrella rows.
+  if (matterId == null) return true;
   const t = title.trim().toLowerCase().replace(/\s+/g, " ");
   if (!t) return true;
-  if (matterId != null || actionName != null) return false;
   return PROCEDURAL_PATTERNS.some((p) => t.startsWith(p));
 }
 
@@ -246,7 +251,7 @@ function normalizeItem(raw: RawEventItem, insiteUrl: string): AgendaItem {
     agendaNumber: raw.EventItemAgendaNumber,
     title,
     topics: detectTopics(searchText),
-    procedural: isProcedural(title, raw.EventItemMatterId, raw.EventItemActionName),
+    procedural: isProcedural(title, raw.EventItemMatterId),
     actionName: raw.EventItemActionName,
     actionText: cleanText(raw.EventItemActionText),
     passed: raw.EventItemPassedFlag == null ? null : raw.EventItemPassedFlag === 1,
@@ -264,6 +269,16 @@ function normalizeItem(raw: RawEventItem, insiteUrl: string): AgendaItem {
 // ---------------------------------------------------------------------------
 // Public API for route handlers
 // ---------------------------------------------------------------------------
+
+// Exported for unit tests (milestone 3). In production these are only
+// called inside the fetch functions below.
+export function normalizeMeetingForTest(e: RawEvent, lastCheckedAt: string, itemCount?: number): MeetingSummary {
+  return normalizeMeeting(e, lastCheckedAt, itemCount);
+}
+
+export function normalizeItemForTest(raw: RawEventItem, insiteUrl: string): AgendaItem {
+  return normalizeItem(raw, insiteUrl);
+}
 
 export async function getRecentCouncilMeetings(limit = 6): Promise<MeetingSummary[]> {
   const url =
