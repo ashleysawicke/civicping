@@ -3,7 +3,8 @@
 // normalized contracts in ./types.
 //
 // Data flow:
-//   Legistar Web API --fetch--> file cache (.cache/legistar) --normalize--> API routes
+//   Legistar Web API --fetch--> file cache (.cache/legistar locally,
+//   OS temp dir on serverless) --normalize--> API routes
 //
 // Cache policy (prototype):
 // - Upcoming/current meeting data: 15-minute TTL (agendas get revised).
@@ -14,6 +15,7 @@
 // even a "fresh" cache entry is refreshed if the upstream revision changed.
 
 import { promises as fs } from "fs";
+import os from "os";
 import path from "path";
 import type {
   AgendaItem,
@@ -29,7 +31,17 @@ import { detectTopics } from "./topics";
 
 const LEGISTAR = "https://webapi.legistar.com/v1/a2gov";
 const COUNCIL_BODY_ID = 138;
-const CACHE_DIR = path.join(process.cwd(), ".cache", "legistar");
+
+function resolveCacheDir(): string {
+  // Serverless (Vercel/Lambda): the deployment bundle is read-only, so only
+  // the OS temp dir is writable. The cache still works there, scoped to the
+  // lifetime of the warm instance.
+  if (process.env.VERCEL === "1" || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    return path.join(os.tmpdir(), "civicping-legistar");
+  }
+  return path.join(process.cwd(), ".cache", "legistar");
+}
+const CACHE_DIR = resolveCacheDir();
 const UPCOMING_TTL_MS = 15 * 60 * 1000;
 const PAST_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -127,8 +139,12 @@ async function readCache(url: string): Promise<CacheEntry | null> {
 }
 
 async function writeCache(url: string, entry: CacheEntry): Promise<void> {
-  await fs.mkdir(CACHE_DIR, { recursive: true });
-  await fs.writeFile(path.join(CACHE_DIR, cacheKey(url)), JSON.stringify(entry));
+  try {
+    await fs.mkdir(CACHE_DIR, { recursive: true });
+    await fs.writeFile(path.join(CACHE_DIR, cacheKey(url)), JSON.stringify(entry));
+  } catch {
+    // Cache is best-effort: a failed write must never break the request.
+  }
 }
 
 function revisionOf(data: unknown): string {
