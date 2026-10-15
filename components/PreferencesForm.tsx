@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import { TOPICS } from "@/lib/topics";
 import { WARDS } from "@/lib/wards";
+import { WARD_MAP_DATA_URI } from "@/lib/ward-map-data";
 import { loadPrefs, savePrefs } from "@/lib/preferences";
 import type { ResidentPrefs } from "@/lib/types";
 
@@ -72,7 +73,19 @@ export default function PreferencesForm({
         <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
           Your ward
         </h2>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <figure className="mt-2">
+          <img
+            src={WARD_MAP_DATA_URI}
+            alt="Map of Ann Arbor's five City Council wards, numbered 1 through 5"
+            className="w-full rounded-xl border border-neutral-200 dark:border-neutral-800"
+            loading="lazy"
+          />
+          <figcaption className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            Find your ward on the map, then pick it below. Not sure? The
+            city&apos;s website can look it up by address.
+          </figcaption>
+        </figure>
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
           We&apos;ll surface items that mention your ward.
         </p>
         <div className="mt-2 grid grid-cols-3 gap-2">
