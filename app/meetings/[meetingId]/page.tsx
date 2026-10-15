@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getMeetingDetail } from "@/lib/legistar";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import OutcomeBadge from "@/components/OutcomeBadge";
 import { EmptyNotice, ErrorBox, SkeletonCard } from "@/components/States";
 import { formatCheckedAt, formatMeetingDate } from "@/components/format";
@@ -50,12 +51,12 @@ async function MeetingContent({
 
   return (
     <div className="space-y-4">
-      <Link
-        href="/"
-        className="inline-flex min-h-[44px] items-center text-sm font-medium text-blue-700 underline dark:text-blue-400"
-      >
-        ← Back to feed
-      </Link>
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: `${formatMeetingDate(meeting.date)} meeting` },
+        ]}
+      />
 
       {meeting.demo && (
         <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-200">

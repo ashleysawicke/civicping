@@ -170,6 +170,11 @@ export default function HomePage() {
               <p className="text-sm text-neutral-500 dark:text-neutral-400">
                 {detail.bodyName} · {detail.time} · Agenda: {detail.agendaStatus}
               </p>
+              <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+                {prefs !== null && prefs.onboarded
+                  ? "Upcoming agenda items, ranked for you. Tap any item for a plain-language summary and ways to weigh in."
+                  : "The next council meeting's agenda. Tap any item for details — or personalize your feed to see what matters to you first."}
+              </p>
             </div>
             {prefs !== null && prefs.onboarded && (
               <Link

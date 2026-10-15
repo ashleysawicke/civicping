@@ -2,16 +2,17 @@
 // and the action panel.
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { getMeetingDetail } from "@/lib/legistar";
 import type { AgendaItem } from "@/lib/types";
 import { topicLabel } from "@/lib/topics";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import Explanation from "@/components/Explanation";
 import OutcomeBadge from "@/components/OutcomeBadge";
 import VotesSection from "@/components/VotesSection";
 import MatterTimeline from "@/components/MatterTimeline";
 import ActionPanel from "@/components/ActionPanel";
 import { ErrorBox, SkeletonCard } from "@/components/States";
+import { formatMeetingDate } from "@/components/format";
 
 function MoverLine({ item }: { item: AgendaItem }) {
   if (!item.mover && !item.seconder) return null;
@@ -58,12 +59,16 @@ async function ItemContent({
 
   return (
     <div className="space-y-2">
-      <Link
-        href={`/meetings/${meeting.id}`}
-        className="inline-flex min-h-[44px] items-center text-sm font-medium text-blue-700 underline dark:text-blue-400"
-      >
-        ← Back to meeting
-      </Link>
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          {
+            label: `${formatMeetingDate(meeting.date)} meeting`,
+            href: `/meetings/${meeting.id}`,
+          },
+          { label: item.agendaNumber ?? "Item" },
+        ]}
+      />
 
       <article>
         {item.agendaNumber && (
