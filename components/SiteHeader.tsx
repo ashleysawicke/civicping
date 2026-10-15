@@ -1,9 +1,12 @@
-// Site header: brand left, help (?) and settings (gear) right.
+// Site header: brand + help/settings icons, plus main navigation.
+// The nav's active state needs usePathname, which only resolves at runtime,
+// so it streams inside Suspense with a static fallback for prerendering.
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import HelpModal from "./HelpModal";
+import MainNav, { NavLinks } from "./MainNav";
 
 export default function SiteHeader() {
   const [helpOpen, setHelpOpen] = useState(false);
@@ -47,6 +50,9 @@ export default function SiteHeader() {
             </Link>
           </div>
         </div>
+        <Suspense fallback={<NavLinks pathname={null} />}>
+          <MainNav />
+        </Suspense>
       </header>
       {helpOpen && <HelpModal onClose={() => setHelpOpen(false)} />}
     </>

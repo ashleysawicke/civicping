@@ -309,6 +309,30 @@ export async function getRecentCouncilMeetings(limit = 6): Promise<MeetingSummar
  *  even when the next agenda is unpublished. */
 export const DEMO_MEETING_ID = 14160;
 
+/** Upcoming council meetings, soonest first. Powers the home feed and the
+ *  meetings calendar. */
+export async function getUpcomingCouncilMeetings(limit = 8): Promise<MeetingSummary[]> {
+  const today = new Date().toISOString().slice(0, 10);
+  const url =
+    `${LEGISTAR}/Events?$filter=EventBodyId eq ${COUNCIL_BODY_ID} and ` +
+    `EventDate ge datetime'${today}T00:00:00'` +
+    `&$orderby=EventDate asc&$top=${limit}`;
+  const { data, lastCheckedAt } = await fetchJson<RawEvent[]>(url, UPCOMING_TTL_MS);
+  return data.map((e) => normalizeMeeting(e, lastCheckedAt));
+}
+
+/** The single most recent past meeting — used for outcomes and as the
+ *  "recent past" entry. We intentionally don't serve a long history. */
+export async function getMostRecentPastMeeting(): Promise<MeetingSummary | null> {
+  const today = new Date().toISOString().slice(0, 10);
+  const url =
+    `${LEGISTAR}/Events?$filter=EventBodyId eq ${COUNCIL_BODY_ID} and ` +
+    `EventDate lt datetime'${today}T00:00:00'` +
+    `&$orderby=EventDate desc&$top=1`;
+  const { data, lastCheckedAt } = await fetchJson<RawEvent[]>(url, PAST_TTL_MS);
+  return data.length > 0 ? normalizeMeeting(data[0], lastCheckedAt) : null;
+}
+
 export async function getMeetingDetail(id: number): Promise<MeetingDetail> {
   const url =
     `${LEGISTAR}/Events/${id}` +

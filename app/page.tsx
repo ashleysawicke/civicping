@@ -13,7 +13,7 @@ import { rankItems } from "@/lib/ranking";
 import { DEFAULT_PREFS, loadPrefs } from "@/lib/preferences";
 import ItemCard from "@/components/ItemCard";
 import { EmptyNotice, ErrorBox, SkeletonCard } from "@/components/States";
-import { formatMeetingDate, todayStr } from "@/components/format";
+import { formatMeetingDate } from "@/components/format";
 
 type Phase = "loading" | "ready" | "no-agenda" | "error";
 
@@ -46,10 +46,7 @@ export default function HomePage() {
               : "Could not load meetings."
           );
         }
-        const list = data.meetings as MeetingSummary[];
-        const upcoming = list
-          .filter((m) => m.date >= todayStr())
-          .sort((a, b) => a.date.localeCompare(b.date));
+        const upcoming = data.upcoming as MeetingSummary[];
         const next = upcoming[0] ?? null;
         if (!cancelled) {
           setNextMeeting(next);
